@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import MapboxGL, { MapView, PointAnnotation, Camera, UserLocation } from "@react-native-mapbox-gl/maps";
 import axios from 'axios';
 import { Container, ButtonTest } from './styles';
@@ -6,7 +6,7 @@ import { Platform } from "react-native";
 
 MapboxGL.setAccessToken("pk.eyJ1IjoiZ3Vpc2lsdmFkZXYiLCJhIjoiY2tlNnlqOGxnMTgwbjJ6bDYzazB2aDJxdiJ9.Y3XXMcnZrJTFx6njP-Xnkg");
 
-const Map = ({ user }) => {
+const Map = forwardRef((props, ref) => {
 
     const [markers, setMarkers] = useState([]);
     const [permission, setPermission] = useState(false);
@@ -42,12 +42,16 @@ const Map = ({ user }) => {
         ))
     };
 
+    function teste() {
+        console.log('Deu certo');
+    }
+
     const saveParkLocation = async () => {
         const coords = getUserLocation();
         const [longitude, latitude] = coords;
 
         const parkLocation = {
-            userID: user._id,
+            userID: props.user._id,
             latitude,
             longitude,
             freePark: true,
@@ -67,6 +71,13 @@ const Map = ({ user }) => {
         }
     };
     //<ButtonTest onPress={getUserLocation} />
+
+    useImperativeHandle(ref, () => {
+        return {
+            saveParkLocation: saveParkLocation
+        };
+    });
+
     return (
         <Container>
             <MapView style={{ flex: 1 }}
@@ -75,7 +86,6 @@ const Map = ({ user }) => {
                 compassViewPosition={2}
                 ref={mapViewRef}
             >
-
                 <Camera
                     centerCoordinate={location}
                     zoomLevel={17}
@@ -92,7 +102,7 @@ const Map = ({ user }) => {
             </MapView>
         </Container >
     );
-}
+});
 
 export default Map;
 
