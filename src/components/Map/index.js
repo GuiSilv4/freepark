@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
 //import MapView from "react-native-map-clustering";
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
+//import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import { Container, ButtonTest } from './styles';
 import axios from 'axios';
 import { PermissionsAndroid, Platform } from "react-native";
@@ -16,10 +17,16 @@ const initialState = {
 }
 
 const Map = forwardRef((props, ref) => {
+
     const [location, setLocation] = useState(initialState);
     const [markers, setMarkers] = useState([]);
     const [marginBottom, setMarginBottom] = useState(1)
     const mapView = useRef(null);
+
+    useEffect(() => {
+        getLocation();
+        loadMarkersFromDB();
+    }, []);
 
     const getLocation = async () => {
 
@@ -52,11 +59,6 @@ const Map = forwardRef((props, ref) => {
         }
 
     }
-
-    useEffect(() => {
-        getLocation();
-        loadMarkersFromDB();
-    }, []);
 
     const saveParkLocation = async () => {
 
@@ -106,18 +108,19 @@ const Map = forwardRef((props, ref) => {
         };
     });
 
-    /*     <ButtonTest onPress={zoomInMap} />
-        const teste = () => {
-            console.log(mapView.current)
-        } */
-
+    //<ButtonTest onPress={teste} />
+    const teste = () => {
+        const { region } = mapView.current;
+        console.log(location);
+    }
     return (
         <Container>
+
             <MapView
                 provider={PROVIDER_GOOGLE}
                 style={{ flex: 1, marginBottom }}
                 region={location}
-                showsUserLocation
+                showsUserLocation={true}
                 showsMyLocationButton={true}
                 ref={mapView}
                 showsTraffic={false}

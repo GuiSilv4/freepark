@@ -5,7 +5,10 @@ export const Container = styled.View`
 `;
 
 export const ButtonTest = styled.TouchableOpacity`
-  background-color: #fff;
+  background-color: #999;
   width: 50px;
-  height: 50px
+  height: 50px;
+  border-radius: 10px;
+  border-width: 1px;
+  position: absolute;
 `;
