@@ -1,30 +1,89 @@
 import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
-import MapboxGL, { MapView, PointAnnotation, Camera, UserLocation } from "@react-native-mapbox-gl/maps";
-import axios from 'axios';
+//import MapView from "react-native-map-clustering";
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import Geolocation from '@react-native-community/geolocation';
 import { Container, ButtonTest } from './styles';
-import { Platform } from "react-native";
+import axios from 'axios';
+import { PermissionsAndroid, Platform } from "react-native";
 
-MapboxGL.setAccessToken("pk.eyJ1IjoiZ3Vpc2lsdmFkZXYiLCJhIjoiY2tlNnlqOGxnMTgwbjJ6bDYzazB2aDJxdiJ9.Y3XXMcnZrJTFx6njP-Xnkg");
+//latitude: 41.1519601105,
+//longitude: -8.60556513499,
+const initialState = {
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: 0.003,
+    longitudeDelta: 0.003,
+}
 
 const Map = forwardRef((props, ref) => {
-
+    const [location, setLocation] = useState(initialState);
     const [markers, setMarkers] = useState([]);
-    const [permission, setPermission] = useState(false);
-    const [location, setLocation] = useState([-8.612606, 41.153715])
-    const mapViewRef = useRef(null);
-    const userLocationRef = useRef(null);
+    const [marginBottom, setMarginBottom] = useState(1)
+    const mapView = useRef(null);
+
+    const getLocation = async () => {
+
+        let granted = null;
+
+        if (Platform.OS === 'android') {
+            granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        }
+
+        if (Platform.OS === 'ios' ||
+            (Platform.OS === 'android' && granted === PermissionsAndroid.RESULTS.GRANTED)) {
+            Geolocation.getCurrentPosition(
+                ({ coords: { latitude, longitude } }) => {
+                    setLocation({
+                        latitude,
+                        longitude,
+                        latitudeDelta: initialState.latitudeDelta,
+                        longitudeDelta: initialState.longitudeDelta
+                    });
+                    setMarginBottom(0);
+                }, //sucesso
+                (error) => { console.warn(JSON.stringify(error)); }, //erro
+                {
+                    timeout: 2000,
+                    enableHighAccuracy: true,
+                }
+            )
+        } else {
+            alert('Permissão de localização não concedida');
+        }
+
+    }
 
     useEffect(() => {
-        MapboxGL.setTelemetryEnabled(false);
-        requestPermision();
+        getLocation();
         loadMarkersFromDB();
     }, []);
 
-    const requestPermision = async () => {
-        if (Platform.OS === 'android') {
-            const res = await MapboxGL.requestAndroidLocationPermissions();
-            setPermission(res);
-        }
+    const saveParkLocation = async () => {
+
+        Geolocation.getCurrentPosition(
+            async ({ coords: { latitude, longitude } }) => {
+                setLocation({
+                    latitude,
+                    longitude,
+                    latitudeDelta: location.latitudeDelta,
+                    longitudeDelta: location.longitudeDelta
+                });
+                const parkLocation = {
+                    userID: props.user._id,
+                    latitude,
+                    longitude,
+                    freePark: true,
+                };
+                //console.log(parkLocation);
+                const res = await axios.post('https://freepark-backend.herokuapp.com/api/map/save', parkLocation);
+                setMarkers([...markers, res.data.mapDot]);
+            }, //sucesso
+            (error) => { console.warn(error); }, //erro
+            {
+                timeout: 2000,
+                enableHighAccuracy: true,
+            }
+        );
     };
 
     const loadMarkersFromDB = async () => {
@@ -34,43 +93,12 @@ const Map = forwardRef((props, ref) => {
 
     const renderMarkers = () => {
         return markers.map(marker => (
-            <PointAnnotation
-                coordinate={[marker.longitude, marker.latitude]}
+            <Marker
+                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
                 key={marker._id}
-                id={marker._id}
             />
         ))
-    };
-
-    function teste() {
-        console.log('Deu certo');
     }
-
-    const saveParkLocation = async () => {
-        const coords = getUserLocation();
-        const [longitude, latitude] = coords;
-
-        const parkLocation = {
-            userID: props.user._id,
-            latitude,
-            longitude,
-            freePark: true,
-        };
-
-        console.log(parkLocation);
-
-        const res = await axios.post('https://freepark-backend.herokuapp.com/api/map/save', parkLocation);
-
-        setMarkers([...markers, res.data.mapDot]);
-
-    };
-
-    const getUserLocation = () => {
-        if (userLocationRef.current) {
-            return userLocationRef.current.state.coordinates;
-        }
-    };
-    //<ButtonTest onPress={getUserLocation} />
 
     useImperativeHandle(ref, () => {
         return {
@@ -78,31 +106,27 @@ const Map = forwardRef((props, ref) => {
         };
     });
 
+    /*     <ButtonTest onPress={zoomInMap} />
+        const teste = () => {
+            console.log(mapView.current)
+        } */
+
     return (
         <Container>
-            <MapView style={{ flex: 1 }}
-                logoEnabled={false}
-                compassEnabled={true}
-                compassViewPosition={2}
-                ref={mapViewRef}
+            <MapView
+                provider={PROVIDER_GOOGLE}
+                style={{ flex: 1, marginBottom }}
+                region={location}
+                showsUserLocation
+                showsMyLocationButton={true}
+                ref={mapView}
+                showsTraffic={false}
+                loadingEnabled
             >
-                <Camera
-                    centerCoordinate={location}
-                    zoomLevel={17}
-                    followUserLocation={true}
-                    followUserMode='normal'
-                />
-                <UserLocation
-                    renderMode='normal'
-                    showUserHeadingIndicator={true}
-                    ref={userLocationRef}
-                ></UserLocation>
                 {renderMarkers()}
-
             </MapView>
         </Container >
     );
 });
-
+//
 export default Map;
-

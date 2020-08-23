@@ -28,8 +28,6 @@ const Dashboard = ({ navigation }) => {
 
   }, []);
 
-
-
   return (
     <Container>
       <MapBox >
