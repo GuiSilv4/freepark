@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/auth';
-import Map from '../../components/Map';
 import Icon from 'react-native-vector-icons/Feather';
-import { RightMenuButton } from './styles';
+import { MapBox, Container, ButtonMain, BottomBox, BottomBoxCircle, ParkTextButton, RightMenuButton } from './styles';
+import Map from '../../components/Map';
 
 const Dashboard = ({ navigation }) => {
+
   const { user, signOut } = useAuth();
 
   function handleSignOut() {
@@ -22,9 +23,27 @@ const Dashboard = ({ navigation }) => {
         </RightMenuButton>
       ),
     })
-  }, [])
+  }, []);
 
-  return <Map />
+  const saveParkLocation = () => {
+    Map.saveParkLocation;
+  };
+
+  return (
+    <Container>
+      <MapBox >
+        <Map user={user} />
+      </MapBox>
+      <BottomBox>
+        <BottomBoxCircle>
+          <ButtonMain delayPressIn={0} onPress={() => { }}>
+            <ParkTextButton>P</ParkTextButton>
+          </ButtonMain>
+        </BottomBoxCircle>
+      </BottomBox>
+
+    </Container >
+  );
 };
 
 

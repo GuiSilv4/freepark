@@ -1,89 +1,30 @@
 import React, { useEffect, useState, useRef } from 'react';
-import MapView from "react-native-map-clustering";
-import { PROVIDER_GOOGLE, Circle, Marker } from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
-import { Container, ButtonMain, BottomBox, BottomBoxCircle, ParkTextButton, ZoomInButton } from './styles';
-import { useAuth } from '../../contexts/auth';
+import MapboxGL, { MapView, PointAnnotation, Camera, UserLocation } from "@react-native-mapbox-gl/maps";
 import axios from 'axios';
-import { PermissionsAndroid, Platform } from "react-native";
+import { Container, ButtonTest } from './styles';
+import { Platform } from "react-native";
 
-//latitude: 41.1519601105,
-//longitude: -8.60556513499,
-const initialState = {
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0.003,
-    longitudeDelta: 0.003,
-}
+MapboxGL.setAccessToken("pk.eyJ1IjoiZ3Vpc2lsdmFkZXYiLCJhIjoiY2tlNnlqOGxnMTgwbjJ6bDYzazB2aDJxdiJ9.Y3XXMcnZrJTFx6njP-Xnkg");
 
-const Map = () => {
-    const [location, setLocation] = useState(initialState);
+const Map = ({ user }) => {
+
     const [markers, setMarkers] = useState([]);
-    const [marginBottom, setMarginBottom] = useState(1)
-    const mapView = useRef(null);
-
-    const { user } = useAuth();
-
-    const getLocation = async () => {
-
-        if (Platform.OS === 'android') {
-            const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
-
-            if (!granted) {
-                await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
-            }
-        }
-        if (Platform.OS === 'ios' ||
-            (Platform.OS === 'android' && await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)))
-            Geolocation.getCurrentPosition(
-                ({ coords: { latitude, longitude } }) => {
-                    setLocation({
-                        latitude,
-                        longitude,
-                        latitudeDelta: initialState.latitudeDelta,
-                        longitudeDelta: initialState.longitudeDelta
-                    });
-                }, //sucesso
-                (error) => { console.warn(JSON.stringify(error)); }, //erro
-                {
-                    timeout: 2000,
-                    enableHighAccuracy: true,
-                }
-            );
-    }
+    const [permission, setPermission] = useState(false);
+    const [location, setLocation] = useState([-8.612606, 41.153715])
+    const mapViewRef = useRef(null);
+    const userLocationRef = useRef(null);
 
     useEffect(() => {
-        getLocation();
+        MapboxGL.setTelemetryEnabled(false);
+        requestPermision();
         loadMarkersFromDB();
     }, []);
 
-
-    const saveParkLocation = async () => {
-
-        Geolocation.getCurrentPosition(
-            async ({ coords: { latitude, longitude } }) => {
-                setLocation({
-                    latitude,
-                    longitude,
-                    latitudeDelta: location.latitudeDelta,
-                    longitudeDelta: location.longitudeDelta
-                });
-                const parkLocation = {
-                    userID: user._id,
-                    latitude,
-                    longitude,
-                    freePark: true,
-                };
-                //console.log(parkLocation);
-                const res = await axios.post('https://freepark-backend.herokuapp.com/api/map/save', parkLocation);
-                setMarkers([...markers, res.data.mapDot]);
-            }, //sucesso
-            (error) => { console.warn(error); }, //erro
-            {
-                timeout: 2000,
-                enableHighAccuracy: true,
-            }
-        );
+    const requestPermision = async () => {
+        if (Platform.OS === 'android') {
+            const res = await MapboxGL.requestAndroidLocationPermissions();
+            setPermission(res);
+        }
     };
 
     const loadMarkersFromDB = async () => {
@@ -93,48 +34,65 @@ const Map = () => {
 
     const renderMarkers = () => {
         return markers.map(marker => (
-            <Marker
-                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+            <PointAnnotation
+                coordinate={[marker.longitude, marker.latitude]}
                 key={marker._id}
+                id={marker._id}
             />
         ))
-    }
+    };
 
-    const setNewRegion = (region) => {
-        setLocation(region);
-    }
+    const saveParkLocation = async () => {
+        const coords = getUserLocation();
+        const [longitude, latitude] = coords;
 
-    const onMapReady = () => {
-        setMarginBottom(0);
-    }
-    //<ZoomInButton onPress={zoomInMap} />
+        const parkLocation = {
+            userID: user._id,
+            latitude,
+            longitude,
+            freePark: true,
+        };
+
+        console.log(parkLocation);
+
+        const res = await axios.post('https://freepark-backend.herokuapp.com/api/map/save', parkLocation);
+
+        setMarkers([...markers, res.data.mapDot]);
+
+    };
+
+    const getUserLocation = () => {
+        if (userLocationRef.current) {
+            return userLocationRef.current.state.coordinates;
+        }
+    };
+    //<ButtonTest onPress={getUserLocation} />
     return (
         <Container>
-            <MapView
-                provider={PROVIDER_GOOGLE}
-                style={{ flex: 1, marginBottom }}
-                region={location}
-                showsUserLocation
-                showsMyLocationButton={true}
-                onRegionChangeComplete={setNewRegion}
-                ref={mapView}
-                showsTraffic={true}
-                loadingEnabled
-                onMapReady={onMapReady}
-
+            <MapView style={{ flex: 1 }}
+                logoEnabled={false}
+                compassEnabled={true}
+                compassViewPosition={2}
+                ref={mapViewRef}
             >
-                {renderMarkers()}
-            </MapView>
-            <BottomBox>
-                <BottomBoxCircle>
-                    <ButtonMain delayPressIn={0} onPress={saveParkLocation}>
-                        <ParkTextButton>P</ParkTextButton>
-                    </ButtonMain>
-                </BottomBoxCircle>
-            </BottomBox>
 
+                <Camera
+                    centerCoordinate={location}
+                    zoomLevel={17}
+                    followUserLocation={true}
+                    followUserMode='normal'
+                />
+                <UserLocation
+                    renderMode='normal'
+                    showUserHeadingIndicator={true}
+                    ref={userLocationRef}
+                ></UserLocation>
+                {renderMarkers()}
+
+            </MapView>
         </Container >
     );
 }
-//
+
 export default Map;
+

@@ -3,7 +3,6 @@ import { Platform } from 'react-native';
 import {
   TextInput,
   View,
-  Text,
   StyleSheet,
   TouchableWithoutFeedback
 } from 'react-native'

@@ -1,4 +1,5 @@
 PODS:
+  - "@react-native-mapbox-gl-mapbox-static (5.8.0)"
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.6):
     - React
@@ -90,6 +91,9 @@ PODS:
   - GoogleMaps/Base (3.5.0)
   - GoogleMaps/Maps (3.5.0):
     - GoogleMaps/Base
+  - Mapbox-iOS-SDK (5.9.0):
+    - MapboxMobileEvents (= 0.10.2)
+  - MapboxMobileEvents (0.10.2)
   - OpenSSL-Universal (1.0.2.19):
     - OpenSSL-Universal/Static (= 1.0.2.19)
   - OpenSSL-Universal/Static (1.0.2.19)
@@ -267,6 +271,20 @@ PODS:
     - Google-Maps-iOS-Utils (= 2.1.0)
     - GoogleMaps (= 3.5.0)
     - React
+  - react-native-mapbox-gl (8.1.0-rc.2):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.8)"
+    - Mapbox-iOS-SDK (~> 5.8)
+    - React
+    - react-native-mapbox-gl/DynamicLibrary (= 8.1.0-rc.2)
+    - react-native-mapbox-gl/StaticLibraryFixer (= 8.1.0-rc.2)
+  - react-native-mapbox-gl/DynamicLibrary (8.1.0-rc.2):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.8)"
+    - Mapbox-iOS-SDK (~> 5.8)
+    - React
+  - react-native-mapbox-gl/StaticLibraryFixer (8.1.0-rc.2):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.8)"
+    - Mapbox-iOS-SDK (~> 5.8)
+    - React
   - react-native-maps (0.27.1):
     - React
   - react-native-safe-area-context (3.1.4):
@@ -390,6 +408,7 @@ DEPENDENCIES:
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-geolocation-service (from `../node_modules/react-native-geolocation-service`)
   - react-native-google-maps (from `../node_modules/react-native-maps`)
+  - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -412,6 +431,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - "@react-native-mapbox-gl-mapbox-static"
     - boost-for-react-native
     - CocoaAsyncSocket
     - CocoaLibEvent
@@ -424,6 +444,8 @@ SPEC REPOS:
     - FlipperKit
     - Google-Maps-iOS-Utils
     - GoogleMaps
+    - Mapbox-iOS-SDK
+    - MapboxMobileEvents
     - OpenSSL-Universal
     - YogaKit
 
@@ -466,6 +488,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-geolocation-service"
   react-native-google-maps:
     :path: "../node_modules/react-native-maps"
+  react-native-mapbox-gl:
+    :path: "../node_modules/@react-native-mapbox-gl/maps"
   react-native-maps:
     :path: "../node_modules/react-native-maps"
   react-native-safe-area-context:
@@ -506,6 +530,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  "@react-native-mapbox-gl-mapbox-static": e247172bc43f47757f47d6cec1b325b1ab3e9287
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
@@ -524,6 +549,8 @@ SPEC CHECKSUMS:
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
   Google-Maps-iOS-Utils: c32891ff472eaaa1fca032beedafa1a013af7875
   GoogleMaps: 32ca02de09de357a10ac773f2c70f1986751392d
+  Mapbox-iOS-SDK: a5915700ec84bc1a7f8b3e746d474789e35b7956
+  MapboxMobileEvents: 2bc0ca2eedb627b73cf403258dce2b2fa98074a6
   OpenSSL-Universal: 8b48cc0d10c1b2923617dfe5c178aa9ed2689355
   RCTRequired: e46bb77db03887b3e200d34b08515c804669db99
   RCTTypeSafety: 270fed6675c42f80fb87b47d626ef3cede1505e6
@@ -538,6 +565,7 @@ SPEC CHECKSUMS:
   react-native-geolocation: c956aeb136625c23e0dce0467664af2c437888c9
   react-native-geolocation-service: 141e33bdb179bcba10b216ee13962611e21f2be4
   react-native-google-maps: 0a989abda71059db2caa98b9dacca7a8f38a47d0
+  react-native-mapbox-gl: 18785637738ca8b25c3633db431d6614ec7fc9bf
   react-native-maps: f4b89da81626ad7f151a8bfcb79733295d31ce5c
   react-native-safe-area-context: eb91fe1fb3f7b87d9c30a7f0808407d8569d539d
   React-RCTActionSheet: aadd91a1d6cbfae50dd41f140004f816e9e47ade
