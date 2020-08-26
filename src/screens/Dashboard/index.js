@@ -1,13 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/auth';
 import Icon from 'react-native-vector-icons/Feather';
 import { MapBox, Container, ButtonMain, BottomBox, BottomBoxCircle, ParkTextButton, RightMenuButton } from './styles';
 import Map, { } from '../../components/Map';
+import { useMap } from '../../contexts/map';
 
 const Dashboard = ({ navigation }) => {
 
   const { user, signOut } = useAuth();
-  const mapRef = useRef(null);
+
+  const { saveParkLocation } = useMap();
 
   function handleSignOut() {
     signOut();
@@ -31,11 +33,11 @@ const Dashboard = ({ navigation }) => {
   return (
     <Container>
       <MapBox >
-        <Map user={user} ref={mapRef} />
+        <Map user={user} />
       </MapBox>
       <BottomBox>
         <BottomBoxCircle>
-          <ButtonMain delayPressIn={0} onPress={() => { mapRef.current.saveParkLocation(); }}>
+          <ButtonMain delayPressIn={0} onPress={saveParkLocation}>
             <ParkTextButton>P</ParkTextButton>
           </ButtonMain>
         </BottomBoxCircle>
