@@ -4,9 +4,6 @@ import { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { Container } from './styles';
 import { useMap } from '../../contexts/map';
 
-//latitude: 41.1519601105,
-//longitude: -8.60556513499,
-
 const Map = () => {
 
     const [marginBottom, setMarginBottom] = useState(1);
@@ -52,5 +49,5 @@ const Map = () => {
         </Container >
     );
 };
-//
+
 export default Map;
