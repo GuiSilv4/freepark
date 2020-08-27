@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/auth';
 import Icon from 'react-native-vector-icons/Feather';
 import { MapBox, Container, ButtonMain, BottomBox, BottomBoxCircle, ParkTextButton, RightMenuButton } from './styles';
-import Map, { } from '../../components/Map';
+import Map from '../../components/Map';
 import { useMap } from '../../contexts/map';
 
 const Dashboard = ({ navigation }) => {
@@ -33,7 +33,7 @@ const Dashboard = ({ navigation }) => {
   return (
     <Container>
       <MapBox >
-        <Map user={user} />
+        <Map />
       </MapBox>
       <BottomBox>
         <BottomBoxCircle>

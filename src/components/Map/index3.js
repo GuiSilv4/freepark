@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import MapView from "react-native-map-clustering";
-import { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { Container } from './styles';
 import { useMap } from '../../contexts/map';
 
@@ -10,7 +9,8 @@ import { useMap } from '../../contexts/map';
 const Map = () => {
 
     const [marginBottom, setMarginBottom] = useState(1);
-    const mapRef = useRef();
+    const mapView = useRef(null);
+
     const { getLocation, loadMarkersFromDB, location, markers } = useMap();
 
     //funcoes de mapa que carregam ao abrir aplicacao
@@ -29,23 +29,18 @@ const Map = () => {
         ))
     };
 
-    useEffect(() => {
-        mapRef.current.animateToRegion(location, 500);
-    }, [location]);
-
     return (
         <Container>
-
             <MapView
                 provider={PROVIDER_GOOGLE}
                 style={{ flex: 1, marginBottom }}
-                ref={mapRef}
-                initialRegion={location}
+                region={location}
                 showsUserLocation={true}
                 showsMyLocationButton={true}
+                ref={mapView}
                 showsTraffic={false}
                 loadingEnabled
-                onMapReady={() => { setMarginBottom(0), getLocation(); }}
+                onMapReady={() => { setMarginBottom(0) }}
             >
                 {renderMarkers()}
             </MapView>

@@ -1,6 +1,13 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { PermissionsAndroid, Platform } from 'react-native';
+
+
 import Geolocation from 'react-native-geolocation-service';
+
+//import Geolocation from '@react-native-community/geolocation';
+
+import { useAuth } from './auth';
 
 const MapContext = createContext({
     location: {
@@ -22,9 +29,9 @@ const initialState = {
 export const MapProvider = (props) => {
     const [location, setLocation] = useState(initialState);
     const [markers, setMarkers] = useState([]);
+    const { user } = useAuth();
 
     const getLocation = async () => {
-
         let granted = null;
 
         if (Platform.OS === 'android') {
@@ -46,6 +53,7 @@ export const MapProvider = (props) => {
                 {
                     timeout: 2000,
                     enableHighAccuracy: true,
+                    maximumAge: 1000
                 }
             )
         } else {
@@ -54,7 +62,7 @@ export const MapProvider = (props) => {
 
     };
 
-    const saveParkLocation = async () => {
+    const saveParkLocation = () => {
 
         Geolocation.getCurrentPosition(
             async ({ coords: { latitude, longitude } }) => {
@@ -65,7 +73,7 @@ export const MapProvider = (props) => {
                     longitudeDelta: location.longitudeDelta
                 });
                 const parkLocation = {
-                    userID: props.user._id,
+                    userID: user._id,
                     latitude,
                     longitude,
                     freePark: true,
@@ -78,6 +86,7 @@ export const MapProvider = (props) => {
             {
                 timeout: 2000,
                 enableHighAccuracy: true,
+                maximumAge: 1000
             }
         );
     };
