@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { PermissionsAndroid, Platform, Linking, Alert } from 'react-native';
 import { AppName } from '../constants';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 import Geolocation from 'react-native-geolocation-service';
@@ -33,13 +34,33 @@ export const MapProvider = (props) => {
     const [markers, setMarkers] = useState([]);
     const { user } = useAuth();
 
+    useEffect(() => {
+        loadStorageData();
+    }, [])
+
+    async function loadStorageData() {
+        const storageLocation = await AsyncStorage.getItem(`@${AppName}:location`);
+
+        if (storageLocation && location === initialState) {
+            const { latitude, longitude } = JSON.parse(storageLocation);
+            setLocation({
+                latitude,
+                longitude,
+                latitudeDelta: 0.003,
+                longitudeDelta: 0.003,
+            });
+        }
+    }
+
     const getLocation = async () => {
+
         const hasLocationPermission = await this.hasLocationPermission();
 
         if (!hasLocationPermission) {
             alert('Permissão de localização não concedida');
             return;
         }
+
         Geolocation.getCurrentPosition(
             ({ coords: { latitude, longitude } }) => {
                 setLocation({
@@ -48,6 +69,10 @@ export const MapProvider = (props) => {
                     latitudeDelta: initialState.latitudeDelta,
                     longitudeDelta: initialState.longitudeDelta
                 });
+                AsyncStorage.setItem(
+                    `@${AppName}:location`,
+                    JSON.stringify({ latitude, longitude })
+                );
             }, //sucesso
             (error) => { console.warn(JSON.stringify(error)); }, //erro
             {
@@ -130,7 +155,14 @@ export const MapProvider = (props) => {
         return false;
     };
 
-    const saveParkLocation = () => {
+    const saveParkLocation = async () => {
+
+        const hasLocationPermission = await this.hasLocationPermission();
+
+        if (!hasLocationPermission) {
+            alert('Permissão de localização não concedida');
+            return;
+        };
 
         Geolocation.getCurrentPosition(
             async ({ coords: { latitude, longitude } }) => {
@@ -140,6 +172,11 @@ export const MapProvider = (props) => {
                     latitudeDelta: location.latitudeDelta,
                     longitudeDelta: location.longitudeDelta
                 });
+                AsyncStorage.setItem(
+                    `@${AppName}:location`,
+                    JSON.stringify({ latitude, longitude })
+                );
+
                 const parkLocation = {
                     userID: user._id,
                     latitude,
