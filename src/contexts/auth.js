@@ -42,10 +42,10 @@ export const AuthProvider = (props) => {
 
     //seta o usuario no contexto
     setUser(user);
-    const token2 = 'asdsadas213gfdskj32qh4k2j34';
+    //const token2 = 'asdsadas213gfdskj32qh4k2j34';
 
     //seta no axios o token que veio de resposta apos autenticacao
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token2}`;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     //seta no async storage as informacoes do user e token para quando fechar
     //aplicao saber que ja logou e nao precisar relogar toda a vez
@@ -53,7 +53,7 @@ export const AuthProvider = (props) => {
       `@${AppName}:user`,
       JSON.stringify(user),
     );
-    await AsyncStorage.setItem(`@${AppName}:token`, token2);
+    await AsyncStorage.setItem(`@${AppName}:token`, token);
 
   }
 
